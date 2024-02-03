@@ -60,6 +60,22 @@
 .search-btn:hover {
 background: #6C8CFF;
 }
+
+.load-more {
+  margin: 32px auto;
+  width: 125px;
+  height: 40px;
+  background: #4E75FF;
+  border-radius: 8px;
+  outline: none;
+  border: none;
+  color: #FFFFFF;
+  font-size: inherit;
+}
+.load-more:hover {
+  background: #6C8CFF;
+}
+
 .gallery {
   margin-top: 32px;
 }

@@ -14,7 +14,7 @@ const searchForm = document.querySelector('.search-form');
 const searchInput = document.querySelector('.search-input');
 const galleryList = document.querySelector('.gallery-list');
 const loader = document.querySelector('.loader');
-const loadMoreButton = document.querySelector('.load-more');
+const loadMoreBtn = document.querySelector('.load-more');
 
 const lightbox = new SimpleLightbox('.gallery a');
 
@@ -35,17 +35,21 @@ searchForm.addEventListener('submit', async (event) => {
         return;
     }
 
+    // Показати індикатор завантаження
+    loader.style.display = 'block';
+    loadMoreBtn.style.display = 'none';
+
     currentQuery = inputValue;
     currentPage = 1;
-    loader.style.display = 'block';
+    
     galleryList.innerHTML = '';
-    loadMoreButton.style.display = 'none';
+    
 
     await searchImages(currentQuery, currentPage);
 });
 
-loadMoreButton.addEventListener('click', async () => {
-    currentPage++;
+loadMoreBtn.addEventListener('click', async () => {
+    currentPage += 1;
     loader.style.display = 'block';
     await searchImages(currentQuery, currentPage);
 });
@@ -59,16 +63,21 @@ async function searchImages(query, page) {
         const response = await axios.get(url);
         const data = response.data;
 
+        searchInput.value = '';
+
         if (data.hits.length === 0) {
             iziToast.error({
                 message: 'Sorry, there are no images matching your search query. Please try again!',
                 position: 'topRight',
                 timeout: 3000,
             });
+            loader.style.display = 'none';
             return;
         }
 
-        galleryList.innerHTML += data.hits.map(image => {
+
+        setTimeout(() => {
+            galleryList.innerHTML += data.hits.map(image => {
             const imageElement = 
             `<li class="gallery-item">
                 <a href="${image.largeImageURL}" data-lightbox="gallery" data-title="${image.tags}">
@@ -84,20 +93,24 @@ async function searchImages(query, page) {
             return imageElement;
         }).join('');
 
+        
+
         loader.style.display = 'none';
         lightbox.refresh();
+    
 
         if (data.totalHits > page * perPage) {
-            loadMoreButton.style.display = 'block';
+            loadMoreBtn.style.display = 'block';
         } else {
-            loadMoreButton.style.display = 'none';
+            loadMoreBtn.style.display = 'none';
         }
-    } catch (error) {
+    }, 1000); // Зробила затримку відображення зображень на 1 секунди
+
+}   catch (error) {
         iziToast.error({
             message: 'There has been a problem with your fetch operation!',
             position: 'topRight',
             timeout: 3000,
         });
         loader.style.display = 'none';
-    }
-}
+    }}
