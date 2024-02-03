@@ -8,14 +8,20 @@ import SimpleLightbox from "simplelightbox";
 // Додатковий імпорт стилів
 import "simplelightbox/dist/simple-lightbox.min.css";
 
-const searchForm = document.querySelector('.search-form')
-const searchInput = document.querySelector('.search-input')
-const galleryList = document.querySelector('.gallery-list')
-const loader = document.querySelector('.loader')
+import axios from "axios";
+
+const searchForm = document.querySelector('.search-form');
+const searchInput = document.querySelector('.search-input');
+const galleryList = document.querySelector('.gallery-list');
+const loader = document.querySelector('.loader');
+const loadMoreButton = document.querySelector('.load-more');
 
 const lightbox = new SimpleLightbox('.gallery a');
 
-searchForm.addEventListener('submit', (event) => {
+let currentPage = 1;
+let currentQuery = '';
+
+searchForm.addEventListener('submit', async (event) => {
     event.preventDefault();
 
     const inputValue = searchInput.value.trim();
@@ -28,79 +34,70 @@ searchForm.addEventListener('submit', (event) => {
         });
         return;
     }
-    
-    // Показати індикатор завантаження
+
+    currentQuery = inputValue;
+    currentPage = 1;
     loader.style.display = 'block';
-    
     galleryList.innerHTML = '';
+    loadMoreButton.style.display = 'none';
 
+    await searchImages(currentQuery, currentPage);
+});
+
+loadMoreButton.addEventListener('click', async () => {
+    currentPage++;
+    loader.style.display = 'block';
+    await searchImages(currentQuery, currentPage);
+});
+
+async function searchImages(query, page) {
     const apiKey = '36996517-56800863ae540be6945d0f4f2';
-    const url = `https://pixabay.com/api/?key=${apiKey}&q=${inputValue}&image_type=photo&orientation=horizontal&safesearch=true`;
+    const perPage = 15;
+    const url = `https://pixabay.com/api/?key=${apiKey}&q=${query}&image_type=photo&orientation=horizontal&safesearch=true&page=${page}&per_page=${perPage}`;
 
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.hits.length === 0) {
+    try {
+        const response = await axios.get(url);
+        const data = response.data;
 
-                // Приховати індикатор завантаження якщо помилка
-            loader.style.display = 'none';
-            
-                iziToast.error({
-                    message: 'Sorry, there are no images matching your search query. Please try again!',
-                    position: 'topRight',
-                    timeout: 3000,
-                });
-                
-                return;
-            }
-            
-            
-        setTimeout(() => {
-            galleryList.innerHTML = data.hits.map(image => {
-                const imageElement = 
-                `<li class="gallery-item">
-                <a href="${image.largeImageURL}" data-lightbox="gallery" data-title="${image.tags}">
-                <img class="img-item" src="${image.webformatURL}" alt="${image.tags}">
-                </a>
-                <ul class="image-properties">
-                <li>Likes <br/>${image.likes}</li>
-                <li>Views <br/>${image.views}</li>
-                <li>Comments <br/>${image.comments}</li>
-                <li>Downloads <br/>${image.downloads}</li>
-                </ul>
-                </li>`;
-                return imageElement;
-            }).join('');
-
-        
-        searchInput.value = '';
-
-        // Приховати індикатор завантаження після отримання відповіді
-        loader.style.display = 'none';
-
-        
-            lightbox.refresh();
-        }, 2000); // Зробила затримку відображення зображень на 2 секунди
-        })
-
-
-        .catch(error => {
+        if (data.hits.length === 0) {
             iziToast.error({
-                message: 'There has been a problem with your fetch operation!',
+                message: 'Sorry, there are no images matching your search query. Please try again!',
                 position: 'topRight',
                 timeout: 3000,
             });
-            
-            searchInput.value = '';
+            return;
+        }
 
-            // Приховати індикатор завантаження якщо помилка
-            loader.style.display = 'none';
+        galleryList.innerHTML += data.hits.map(image => {
+            const imageElement = 
+            `<li class="gallery-item">
+                <a href="${image.largeImageURL}" data-lightbox="gallery" data-title="${image.tags}">
+                    <img class="img-item" src="${image.webformatURL}" alt="${image.tags}">
+                </a>
+                <ul class="image-properties">
+                    <li>Likes <br/>${image.likes}</li>
+                    <li>Views <br/>${image.views}</li>
+                    <li>Comments <br/>${image.comments}</li>
+                    <li>Downloads <br/>${image.downloads}</li>
+                </ul>
+            </li>`;
+            return imageElement;
+        }).join('');
+
+        loader.style.display = 'none';
+        lightbox.refresh();
+
+        if (data.totalHits > page * perPage) {
+            loadMoreButton.style.display = 'block';
+        } else {
+            loadMoreButton.style.display = 'none';
+        }
+    } catch (error) {
+        iziToast.error({
+            message: 'There has been a problem with your fetch operation!',
+            position: 'topRight',
+            timeout: 3000,
         });
-});
-
-
+        loader.style.display = 'none';
+    }
+}
