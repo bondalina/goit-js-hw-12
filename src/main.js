@@ -104,7 +104,7 @@ function smoothScroll() {
     const galleryItemHeight = document.querySelector('.gallery-item').getBoundingClientRect().height;
     // Плавна прокрутка сторінки
     window.scrollBy({
-        top: galleryItemHeight * 2, // на дві висоти карточки
+        top: galleryItemHeight * 2,
         behavior: 'smooth' 
         });
     }
