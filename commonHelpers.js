@@ -8,5 +8,5 @@ import{S as f,i as n,a as b}from"./assets/vendor-951421c8.js";(function(){const 
                     <li>Comments <br/>${o.comments}</li>
                     <li>Downloads <br/>${o.downloads}</li>
                 </ul>
-            </li>`).join("");m.insertAdjacentHTML("beforeend",g),l.style.display="none",w.refresh(),s.totalHits<=r*15?(a.style.display="none",n.error({message:"We're sorry, but you've reached the end of search results.",position:"topRight",timeout:3e3})):a.style.display="block"}catch{n.error({message:"There has been a problem with your fetch operation!",position:"topRight",timeout:3e3}),l.style.display="none"}}function $(){const i=document.querySelector(".gallery-item").getBoundingClientRect().height;window.scrollBy({top:i*3,behavior:"smooth"})}
+            </li>`).join("");m.insertAdjacentHTML("beforeend",g),l.style.display="none",w.refresh(),s.totalHits<=r*15?(a.style.display="none",n.error({message:"We're sorry, but you've reached the end of search results.",position:"topRight",timeout:3e3})):a.style.display="block"}catch{n.error({message:"There has been a problem with your fetch operation!",position:"topRight",timeout:3e3}),l.style.display="none"}}function $(){const i=document.querySelector(".gallery-item").getBoundingClientRect().height;window.scrollBy({top:i*2,behavior:"smooth"})}
 //# sourceMappingURL=commonHelpers.js.map
